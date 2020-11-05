@@ -25,8 +25,14 @@ public class PiratesStep2 {
 	 * Declare the objects and variables that you want to access across
 	 * multiple methods.
 	 */
-
-
+	static JLabel scoreLabel;
+	
+	static int score = 0;
+	static JLabel pirateShip;
+	
+	static Timer moveTimer;
+	static int speed = 2000;
+	
 	/**
 	 * CREATE MAIN WINDOW
 	 * This method is called by the main method to set up the main GUI window.
@@ -58,7 +64,7 @@ public class PiratesStep2 {
 		sideBar.add(Box.createRigidArea(new Dimension(135, 10)));
 
 		// Make the score label
-		JLabel scoreLabel = new JLabel("0");
+		scoreLabel = new JLabel("0");
 		scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		sideBar.add(scoreLabel);
 
@@ -76,8 +82,10 @@ public class PiratesStep2 {
 		// Make sidebar buttons
 		JButton newGameButton = new JButton("New Game");
 		newGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		newGameButton.addActionListener(new NewGameHandler());
 		sideBar.add(newGameButton);
 		sideBar.add(Box.createRigidArea(new Dimension(135, 10)));
+		
 
 		JButton musicButton = new JButton("Music Off");
 		musicButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -100,14 +108,16 @@ public class PiratesStep2 {
 		mapImage.setLocation(0, 0);
 
 		// Create the pirate ship
-		JLabel pirateShip = createScaledImage("resources/pirate-ship.png", 40, 40);
+		pirateShip = createScaledImage("resources/pirate-ship.png", 40, 40);
 		pirateShip.setSize(40, 40);
-		Random randomGenerator = new Random();
-		int pirateX = randomGenerator.nextInt(735);
-		int pirateY = randomGenerator.nextInt(360);
-		pirateShip.setLocation(pirateX, pirateY);
+		moveShip();
+		pirateShip.addMouseListener(new ShipMouseHandler());
 		mapPanel.add(pirateShip);
 
+		// Create timer that moves the pirate ship
+		moveTimer = new Timer(2000, new MoveShipHandler());
+		moveTimer.start();
+		
 		// Add the panel to the frame
 		frame.setContentPane(contentPane);
 
@@ -130,7 +140,15 @@ public class PiratesStep2 {
 		return new JLabel(new ImageIcon(scaledImage));
 	}
 
-
+	
+	/** Move the ship to a random Location **/
+	
+	private static void moveShip () {
+		Random randomGenerator = new Random();
+		int pirateX = randomGenerator.nextInt(735);
+		int pirateY = randomGenerator.nextInt(360);
+		pirateShip.setLocation(pirateX, pirateY);
+	}
 	/**
 	 * EVENT LISTENERS
 	 * Subclasses that handle events (button clicks, mouse clicks and moves,
@@ -148,5 +166,63 @@ public class PiratesStep2 {
 		}
 	}
 	
+	
+	
+	/** Listens for mouse interactions with the pirate ship **/
+    private static class ShipMouseHandler implements MouseListener {
+
+        public void mouseClicked (MouseEvent event) {
+
+            // Score up by one 
+        	score++;
+        	scoreLabel.setText(String.valueOf(score));
+        	
+        	// Ship to disappear
+        	pirateShip.setVisible(false);
+        	
+        	// Make speed faster
+        	speed -= 50;
+        	moveTimer.setDelay(speed);
+        }
+        public void mousePressed (MouseEvent event) {
+        }
+        public void mouseReleased (MouseEvent event) {
+        }
+        public void mouseEntered (MouseEvent event) {
+        }
+        public void mouseExited (MouseEvent event) {
+        }
+    }
+    
+    /** Handles when the user clicks the new game button */
+    private static class NewGameHandler implements ActionListener {
+        public void actionPerformed (ActionEvent event) {
+
+            // Set score to 0
+        	score = 0;
+        	scoreLabel.setText("0");
+        	
+        	// Move ship to new location
+        	moveShip();
+    		pirateShip.setVisible(true);
+    		
+    		// Reset the speed
+    		speed = 2000;
+    		moveTimer.setDelay(2000);
+    		
+
+        }
+
+    }
+    
+    /** Handles when the user clicks the new game button */
+    private static class MoveShipHandler implements ActionListener {
+        public void actionPerformed (ActionEvent event) {
+
+        	// Move ship to new location
+        	moveShip();
+    		pirateShip.setVisible(true);
+        }
+    }
 	
 }
